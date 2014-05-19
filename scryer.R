@@ -1,17 +1,18 @@
 #! /usr/bin/env Rscript
 
+args <- commandArgs(trailingOnly = TRUE)
+# args <- c(6)
+if (length(args) != 2) {
+  cat("Usage: scryer <output-dir> <num-output>\n")
+  quit(save="no", status=1)
+}
+
 library("reshape2")
 library("ggplot2")
 library("data.table")
 
-args <- commandArgs(trailingOnly = TRUE)
-# args <- c(6)
-if (length(args) != 1) {
-  cat("Usage: scryer <num-output>\n")
-  quit(save="no", status=1)
-}
-
-n_output = args[1]
+output_dir = args[1]
+n_output = args[2]
 
 cat("Reading the lotto history...\n")
 lotto = fread("data/MondayWednesdayLotto.csv", header=F)
@@ -31,7 +32,9 @@ cat("Generating histograms...\n")
 hist_plot = ggplot(molten_lotto, aes(x=as.numeric(value))) +
   geom_histogram(binwidth=0.5) +
   scale_x_continuous(breaks=unique(as.numeric(molten_lotto$value)))
-output_filename = "data/MondayWednesdayLotto_Histogram.pdf"
+dir.create(output_dir, recursive=T)
+output_filename = paste(path.expand(output_dir), "/MondayWednesdayLotto_Histogram.pdf",
+                        sep="")
 ggsave(hist_plot, file=output_filename, width=12, height=6)
 cat("Histogram saved in \"", output_filename, "\"\n", sep="")
 

@@ -56,6 +56,7 @@ cat("Predicted Wining Numbers:\n")
 cat("============================================\n")
 for (i in 1:n_output) {
   selection = sample_beta(lotto_freq, round_count)
+  cat(i, ":\t", sep="")
   cat(selection, sep=",\t")
   cat("\n")
 }

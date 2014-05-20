@@ -2,8 +2,8 @@
 
 args <- commandArgs(trailingOnly = TRUE)
 # args <- c(6)
-if (length(args) != 2) {
-  cat("Usage: scryer <output-dir> <num-output>\n")
+if (length(args) != 4) {
+  cat("Usage: scryer <output-dir> <num-output> <ball-count> <model>\n")
   quit(save="no", status=1)
 }
 
@@ -12,7 +12,9 @@ library("ggplot2")
 library("data.table")
 
 output_dir = args[1]
-n_output = args[2]
+n_output = as.numeric(args[2])
+ball_count = as.numeric(args[3])
+model = args[4]
 
 cat("Reading the lotto history...\n")
 lotto = fread("data/MondayWednesdayLotto.csv", header=F)
@@ -38,28 +40,69 @@ output_filename = paste(path.expand(output_dir), "/MondayWednesdayLotto_Histogra
 ggsave(hist_plot, file=output_filename, width=12, height=6)
 cat("Histogram saved in \"", output_filename, "\"\n", sep="")
 
-sample_beta = function(lotto_freq, round_count) {
-  lotto_beta = lotto_freq[, list(value=value, alpha=freq + 1,
-                                 beta=round_count - freq + 1)]
-  scores = runif(nrow(lotto_beta))
-  tmp_lotto_beta = lotto_beta
-  tmp_lotto_beta$scores = scores
-  lotto_score = tmp_lotto_beta[, list(value=value,
-                                      prob=qbeta(scores, alpha, beta))]
-  setkey(lotto_score, prob)
-  # tail(lotto_score, 6)$value
-  sample(lotto_score$value, 6, prob=lotto_score$prob)
+predict = function(lotto_freq, round_count, model) {
+  if (model == "fair") {
+    sort(as.numeric(sample(lotto_freq$value, ball_count), prob=1))
+  } else if (model == "nofair") {
+    sort(as.numeric(sample(lotto_freq$value, ball_count,
+                           prob=lotto_freq$freq)))
+  } else if (model == "beta") {
+    lotto_beta = lotto_freq[, list(value=value, alpha=freq + 1,
+                                   beta=round_count - freq + 1)]
+    scores = runif(nrow(lotto_beta))
+    tmp_lotto_beta = lotto_beta
+    tmp_lotto_beta$scores = scores
+    lotto_score = tmp_lotto_beta[, list(value=value,
+                                        prob=qbeta(scores, alpha, beta))]
+    setkey(lotto_score, prob)
+    # oail(lotto_score, 6)$value
+    sort(as.numeric(sample(lotto_score$value, ball_count,
+                           prob=lotto_score$prob)))
+  }
 }
 
-cat("\n")
-cat("Predicted Wining Numbers:\n")
-cat("============================================\n")
-for (i in 1:n_output) {
-  selection = sample_beta(lotto_freq, round_count)
-  cat(i, ":\t", sep="")
-  cat(selection, sep=",\t")
+if (n_output > 1) {
   cat("\n")
+  cat("Predicted Wining Numbers:\n")
+  cat("============================================\n")
+  for (i in 1:n_output) {
+    selection = predict(lotto_freq, round_count, model)
+    cat(i, ":\t", sep="")
+    cat(selection, sep=",\t")
+    cat("\n")
+  }
+  cat("============================================\n")
+} else {
+  cat("\n")
+  cat("Testing for winning numbers:\n")
+  cat("Wining number: ")
+  # win_number = sort(as.numeric(tail(lotto, 1)[, c(V3, V4, V5, V6, V7, V8)]))
+  win_number = sort(as.numeric(lotto[sample(nrow(lotto), 1), c(V3, V4, V5, V6, V7, V8)]))
+  cat(win_number, sep=", ")
+  cat("\n")
+  i = 1
+  highest_match = 0
+  repeat {
+    guess = predict(lotto_freq, round_count, model)
+    highest_match = max(length(intersect(win_number, guess)), highest_match)
+    if (i %% 1000 == 0) {
+      cat("Current count: ", i, "\n", sep="")
+      cat("Current highest match: ", highest_match, "\n", sep="")
+    }
+    if (highest_match >= 6) {
+      cat("=======\n")
+      cat("Hit Jackpot at: ", i, "\n", sep="")
+      cat("The guess is: ")
+      cat(guess, sep=", ")
+      cat("\n")
+      cat("Wining number: ")
+      cat(win_number, sep=", ")
+      cat("\n")
+      cat("=======\n")
+      break
+    }
+    i = i + 1
+  }
 }
-cat("============================================\n")
 
 cat("Good Luck!\n")

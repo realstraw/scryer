@@ -17,11 +17,17 @@ ball_count = as.numeric(args[3])
 model = args[4]
 
 cat("Reading the lotto history...\n")
-lotto = fread("data/MondayWednesdayLotto.csv", header=F)
+# lotto_filename = "data/MondayWednesdayLotto.csv"
+lotto_filename = "data/LottoSaturday.csv"
+lotto = fread(lotto_filename, header=F)
+# download.file("https://tatts.com/LottoHistoricWinningNumbers/MondayWednesdayLotto.csv",
+#           lotto_filename, method="wget")
+lotto = fread(lotto_filename,
+              header = F)
 round_count = nrow(lotto)
 
 cat("================================\n")
-cat("MondayWednesdayLotto.csv summary:\n")
+cat(lotto_filename, " summary:\n", sep="")
 cat("Number of rows: ", round_count, "\n", sep="")
 molten_lotto = melt(lotto, id.vars=c("V1"),
                     measure.vars=c("V3", "V4", "V5", "V6", "V7", "V8"))
@@ -35,7 +41,7 @@ hist_plot = ggplot(molten_lotto, aes(x=as.numeric(value))) +
   geom_histogram(binwidth=0.5) +
   scale_x_continuous(breaks=unique(as.numeric(molten_lotto$value)))
 dir.create(output_dir, recursive=T)
-output_filename = paste(path.expand(output_dir), "/MondayWednesdayLotto_Histogram.pdf",
+output_filename = paste(path.expand(output_dir), "/Data_Histogram.pdf",
                         sep="")
 ggsave(hist_plot, file=output_filename, width=12, height=6)
 cat("Histogram saved in \"", output_filename, "\"\n", sep="")

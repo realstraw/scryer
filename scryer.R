@@ -17,8 +17,8 @@ ball_count = as.numeric(args[3])
 model = args[4]
 
 cat("Reading the lotto history...\n")
-# lotto_filename = "data/MondayWednesdayLotto.csv"
-lotto_filename = "data/LottoSaturday.csv"
+lotto_filename = "data/MondayWednesdayLotto.csv"
+# lotto_filename = "data/LottoSaturday.csv"
 lotto = fread(lotto_filename, header=F)
 # download.file("https://tatts.com/LottoHistoricWinningNumbers/MondayWednesdayLotto.csv",
 #           lotto_filename, method="wget")

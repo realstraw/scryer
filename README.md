@@ -20,7 +20,9 @@ Scryer is implemented in R and requires the following R packages:
             history to use for prediction.
         <output-dir>: the output directory, which contains some descriptive 
             analysis about the lotto history.
-        <num-output>: number of predictions (rows) to output.
+        <num-output>: number of predictions (rows) to output. Use -1 will
+            execute experiment mode, and will keep guessing until it hits the
+            jackpot.
         <ball-count>: the number of numbers (columns) expected (typically 6).
         <model>: prediction models ("fair", "unfair", "beta")to use.
 

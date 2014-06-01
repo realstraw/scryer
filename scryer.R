@@ -56,7 +56,7 @@ cat("Histogram saved in \"", output_filename, "\"\n", sep="")
 predict = function(lotto_freq, round_count, model) {
   if (model == "fair") {
     sort(as.numeric(sample(lotto_freq$value, ball_count), prob=1))
-  } else if (model == "nofair") {
+  } else if (model == "unfair") {
     sort(as.numeric(sample(lotto_freq$value, ball_count,
                            prob=lotto_freq$freq)))
   } else if (model == "beta") {

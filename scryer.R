@@ -2,8 +2,8 @@
 
 args <- commandArgs(trailingOnly = TRUE)
 # args <- c(6)
-if (length(args) != 4) {
-  cat("Usage: scryer <output-dir> <num-output> <ball-count> <model>\n")
+if (length(args) != 5) {
+  cat("Usage: scryer <lotto> <output-dir> <num-output> <ball-count> <model>\n")
   quit(save="no", status=1)
 }
 
@@ -11,14 +11,21 @@ library("reshape2")
 library("ggplot2")
 library("data.table")
 
-output_dir = args[1]
-n_output = as.numeric(args[2])
-ball_count = as.numeric(args[3])
-model = args[4]
+lotto_name = args[1]
+output_dir = args[2]
+n_output = as.numeric(args[3])
+ball_count = as.numeric(args[4])
+model = args[5]
 
 cat("Reading the lotto history...\n")
-lotto_filename = "data/MondayWednesdayLotto.csv"
-# lotto_filename = "data/LottoSaturday.csv"
+if (lotto_name == "MondayWednesday") {
+  lotto_filename = "data/MondayWednesdayLotto.csv"
+} else if (lotto_name == "Saturday") {
+  lotto_filename = "data/LottoSaturday.csv"
+} else {
+  cat("Lotto name must be one of \"MondayWednesday\" or \"Saturday\"\n")
+  quit(save="no", status=1)
+}
 lotto = fread(lotto_filename, header=F)
 # download.file("https://tatts.com/LottoHistoricWinningNumbers/MondayWednesdayLotto.csv",
 #           lotto_filename, method="wget")
